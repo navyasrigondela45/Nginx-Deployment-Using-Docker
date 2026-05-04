@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketFlow - Book Telugu Movie Tickets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        /* Movie Grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* Movie Card */
+        .movie-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .movie-poster {
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-info h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .movie-details {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .movie-details span {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        .price {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .book-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Booking Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .seats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .seat {
+            padding: 10px;
+            text-align: center;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .seat:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .seat.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .seat.booked {
+            background: #ccc;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Selected Movie Display */
+        .selected-movie {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0,0,0,0.9);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎬 TicketFlow</h1>
+        <p>Book Tickets for Latest Telugu Movies</p>
+    </div>
+
+    <div class="container">
+        <div class="movies-grid">
+            <!-- Movie 1: Pushpa 2 -->
+            <div class="movie-card">
+                <div class="movie-poster">🎬</div>
+                <div class="movie-info">
+                    <h3>Pushpa 2: The Rule</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.8/5</span>
+                        <span>🎭 Action/Drama</span>
+                        <span>⏰ 3h 20m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹250</div>
+                    <button class="book-btn" onclick="bookTicket('Pushpa 2: The Rule', 250)">Book Ticket</button>
+                </div>
+            </div>
+
+            <!-- Movie 2: Salaar 2 -->
+            <div class="movie-card">
+                <div class="movie-poster">⚔️</div>
+                <div class="movie-info">
+                    <h3>Salaar: Part 2</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.7/5</span>
+                        <span>🎭 Action/Thriller</span>
+                        <span>⏰ 2h 55m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹280</div>
+                    <button class="book-btn" onclick="bookTicket('Salaar: Part 2', 280)">Book Ticket</button>
+                </div>
+            </div>
+
+            <!-- Movie 3: Game Changer -->
+            <div class="movie-card">
+                <div class="movie-poster">🎲</div>
+                <div class="movie-info">
+                    <h3>Game Changer</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.6/5</span>
+                        <span>🎭 Political Drama</span>
+                        <span>⏰ 2h 45m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹220</div>
+                    <button class="book-btn" onclick="bookTicket('Game Changer', 220)">Book Ticket</button>
+                </div>
+            </div>
+
+            <!-- Movie 4: Kalki 2898 AD -->
+            <div class="movie-card">
+                <div class="movie-poster">🚀</div>
+                <div class="movie-info">
+                    <h3>Kalki 2898 AD</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.9/5</span>
+                        <span>🎭 Sci-Fi/Mythology</span>
+                        <span>⏰ 3h 00m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹300</div>
+                    <button class="book-btn" onclick="bookTicket('Kalki 2898 AD', 300)">Book Ticket</button>
+                </div>
+            </div>
+
+            <!-- Movie 5: Devara -->
+            <div class="movie-card">
+                <div class="movie-poster">🌊</div>
+                <div class="movie-info">
+                    <h3>Devara</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.7/5</span>
+                        <span>🎭 Action/Drama</span>
+                        <span>⏰ 2h 50m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹240</div>
+                    <button class="book-btn" onclick="bookTicket('Devara', 240)">Book Ticket</button>
+                </div>
+            </div>
+
+            <!-- Movie 6: Guntur Kaaram -->
+            <div class="movie-card">
+                <div class="movie-poster">🔥</div>
+                <div class="movie-info">
+                    <h3>Guntur Kaaram</h3>
+                    <div class="movie-details">
+                        <span>⭐ 4.5/5</span>
+                        <span>🎭 Family Drama</span>
+                        <span>⏰ 2h 35m</span>
+                        <span>🎬 Telugu</span>
+                    </div>
+                    <div class="price">₹230</div>
+                    <button class="book-btn" onclick="bookTicket('Guntur Kaaram', 230)">Book Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Book Your Ticket</h2>
+            <div id="selectedMovieInfo" class="selected-movie"></div>
+            
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="name" required placeholder="Enter your name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Email ID</label>
+                    <input type="email" id="email" required placeholder="Enter your email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="mobile" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Show Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Show Time</label>
+                    <select id="time" required>
+                        <option value="">Select show time</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="1:30 PM">1:30 PM</option>
+                        <option value="4:30 PM">4:30 PM</option>
+                        <option value="7:30 PM">7:30 PM</option>
+                        <option value="10:00 PM">10:00 PM</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Seats (Click on seats)</label>
+                    <div class="seats" id="seatsContainer"></div>
+                    <small style="color: #666;">* Available seats shown in gray. Selected seats in purple.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Number of Tickets</label>
+                    <input type="number" id="tickets" min="1" max="10" value="1" readonly>
+                </div>
+                
+                <div class="total-price" id="totalPrice">Total: ₹0</div>
+                
+                <button type="submit" class="confirm-btn">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 TicketFlow - Book Telugu Movie Tickets Online</p>
+        <p style="margin-top: 10px; font-size: 14px;">🎟️ Happy Watching!</p>
+    </div>
+
+    <script>
+        let currentMovie = '';
+        let currentPrice = 0;
+        let selectedSeats = [];
+        let availableSeats = [];
+
+        // Initialize available seats
+        function initSeats() {
+            availableSeats = [];
+            for(let i = 1; i <= 40; i++) {
+                // Randomly mark some seats as booked for demo
+                let isBooked = Math.random() < 0.2; // 20% seats booked
+                availableSeats.push({
+                    number: i,
+                    booked: isBooked
+                });
+            }
+        }
+
+        function bookTicket(movieName, price) {
+            currentMovie = movieName;
+            currentPrice = price;
+            selectedSeats = [];
+            initSeats();
+            updateSeatsDisplay();
+            
+            document.getElementById('selectedMovieInfo').innerHTML = `
+                <strong>${movieName}</strong><br>
+                Ticket Price: ₹${price}
+            `;
+            
+            document.getElementById('bookingModal').style.display = 'flex';
+            document.getElementById('totalPrice').innerText = `Total: ₹0`;
+            document.getElementById('tickets').value = 0;
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').setAttribute('min', today);
+        }
+
+        function updateSeatsDisplay() {
+            const seatsContainer = document.getElementById('seatsContainer');
+            seatsContainer.innerHTML = '';
+            
+            availableSeats.forEach(seat => {
+                const seatDiv = document.createElement('div');
+                seatDiv.className = 'seat';
+                if(seat.booked) {
+                    seatDiv.classList.add('booked');
+                    seatDiv.innerText = `${seat.number}🔒`;
+                } else if(selectedSeats.includes(seat.number)) {
+                    seatDiv.classList.add('selected');
+                    seatDiv.innerText = `${seat.number}✓`;
+                } else {
+                    seatDiv.innerText = seat.number;
+                }
+                
+                if(!seat.booked) {
+                    seatDiv.onclick = () => toggleSeat(seat.number);
+                }
+                
+                seatsContainer.appendChild(seatDiv);
+            });
+        }
+
+        function toggleSeat(seatNumber) {
+            const index = selectedSeats.indexOf(seatNumber);
+            if(index === -1) {
+                if(selectedSeats.length < 10) {
+                    selectedSeats.push(seatNumber);
+                } else {
+                    alert('Maximum 10 seats per booking!');
+                    return;
+                }
+            } else {
+                selectedSeats.splice(index, 1);
+            }
+            
+            const ticketCount = selectedSeats.length;
+            document.getElementById('tickets').value = ticketCount;
+            const total = ticketCount * currentPrice;
+            document.getElementById('totalPrice').innerHTML = `Total: ₹${total}`;
+            
+            updateSeatsDisplay();
+        }
+
+        function closeModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            document.getElementById('bookingForm').reset();
+            selectedSeats = [];
+        }
+
+        // Handle form submission
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const mobile = document.getElementById('mobile').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            
+            if(selectedSeats.length === 0) {
+                alert('Please select at least one seat!');
+                return;
+            }
+            
+            if(!date || !time) {
+                alert('Please select show date and time!');
+                return;
+            }
+            
+            const totalAmount = selectedSeats.length * currentPrice;
+            
+            // Create booking confirmation
+            const bookingDetails = `
+                🎬 TICKET CONFIRMATION 🎬
+                
+                Movie: ${currentMovie}
+                Name: ${name}
+                Email: ${email}
+                Mobile: ${mobile}
+                Date: ${date}
+                Time: ${time}
+                Seats: ${selectedSeats.join(', ')}
+                Tickets: ${selectedSeats.length}
+                Total Amount: ₹${totalAmount}
+                
+                Thank you for booking with TicketFlow!
+                Show this message at the counter.
+            `;
+            
+            alert(bookingDetails);
+            closeModal();
+            
+            // Optional: Store booking in localStorage
+            const booking = {
+                movie: currentMovie,
+                name: name,
+                email: email,
+                mobile: mobile,
+                date: date,
+                time: time,
+                seats: selectedSeats,
+                total: totalAmount,
+                timestamp: new Date().toISOString()
+            };
+            
+            let bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            bookings.push(booking);
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+        });
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bookingModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Set minimum date on page load
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').setAttribute('min', today);
+    </script>
+</body>
+</html>
