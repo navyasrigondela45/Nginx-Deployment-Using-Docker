@@ -44,6 +44,7 @@ This project demonstrates how a simple static web application can be containeriz
 * Reduced overall Docker image size
 * Improved efficiency without changing functionality
 
+<img width="1570" height="463" alt="image" src="https://github.com/user-attachments/assets/dcb208c8-eb4d-4f5c-988a-eb37198d7689" />
 
 
 **Key Concept:**
